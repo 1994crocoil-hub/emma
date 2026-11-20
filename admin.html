@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <title>景點管理｜京都・大阪旅行手帳</title>
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
   <script defer src="places.js?v=5"></script>
-  <script type="module" src="admin.js?v=5"></script>
+  <script type="module" src="admin.js?v=6"></script>
 </head>
 <body>
   <header class="site-header"><div class="wrap header-inner">
@@ -25,14 +25,23 @@
         <div class="shops-controls" role="group" aria-label="顯示範圍">
           <button type="button" class="button small" data-editor-filter="all" aria-pressed="true">全部</button>
           <button type="button" class="button small" data-editor-filter="review" aria-pressed="false">待查核</button>
+          <button type="button" class="button small" data-editor-filter="suggestions" aria-pressed="false">訪客投稿</button>
         </div>
         <p id="editor-count" role="status"></p>
         <div id="editor-list"></div>
       </aside>
       <div class="admin-work">
+        <section id="submission-queue" class="editor-panel" hidden aria-labelledby="submission-queue-title">
+          <h2 id="submission-queue-title">訪客投稿</h2>
+          <p id="submission-status" role="status"></p>
+          <button id="submission-reload" class="button small" type="button">重新整理</button>
+          <div id="submission-list"></div>
+        </section>
+        <div id="editor-draft" class="admin-work">
         <form id="editor-form">
           <fieldset id="editor-fields">
             <legend id="editor-title">景點內容</legend>
+            <div id="editor-suggestion-context" hidden></div>
             <div class="editor-fields">
               <label>中文名<input name="name" maxlength="160"></label>
               <label>日文名<input name="japanese" maxlength="160"></label>
@@ -62,6 +71,7 @@
         </form>
         <section class="editor-panel"><h2>景點卡預覽</h2><article class="catalog-card" id="editor-preview"></article></section>
         <section class="editor-panel"><h2>異動紀錄</h2><ol id="editor-log"></ol></section>
+        </div>
       </div>
     </div>
   </main>

@@ -63,6 +63,9 @@ function renderList() {
 
 function payload() {
   const result = { fields: inputs.map((name) => value(name).value.trim()) };
+  for (const key of ["suggestion_note", "suggestion_map"]) {
+    if (place?.content[key]) result[key] = place.content[key];
+  }
   for (const name of optional) {
     const raw = value(name).value.trim();
     if (!raw) continue;
@@ -117,6 +120,13 @@ function selectPlace(row, force = false) {
     optional.forEach((name) => { if (row.content[name] !== undefined) value(name).value = row.content[name]; });
     value("day").value = row.content.day || days || 1;
     value("city").value = row.content.city || planDays[Number(value("day").value) - 1].city;
+  }
+  const context = get("editor-suggestion-context");
+  context.replaceChildren();
+  context.hidden = !row?.content?.suggestion_note;
+  if (!context.hidden) {
+    context.append(node("p", "訪客推薦：" + row.content.suggestion_note));
+    if (validUrl(row.content.suggestion_map)) context.append(sourceLink("訪客附上的地圖連結", row.content.suggestion_map));
   }
   get("editor-title").textContent = row ? (row.content.fields[0] || "未命名") + " · " + statusNames[row.status] : "新增景點";
   get("editor-review").disabled = !row;
@@ -180,11 +190,102 @@ get("editor-new").addEventListener("click", () => selectPlace(null));
 get("editor-review").addEventListener("click", () => save("review"));
 get("editor-archive").addEventListener("click", () => save("archive"));
 get("editor-search").addEventListener("input", renderList);
-group.forEach((control) => control.addEventListener("click", () => {
-  filter = control.dataset.editorFilter;
-  group.forEach((item) => item.setAttribute("aria-pressed", String(item === control)));
-  renderList();
-}));
+function sourceLink(label, url) {
+  const link = node("a", label);
+  link.className = "text-link";
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "ugc noopener noreferrer";
+  return link;
+}
+
+const queue = get("submission-queue");
+const queueStatus = get("submission-status");
+const queueList = get("submission-list");
+let queueRequest = 0;
+
+function switchFilter(next) {
+  if (next === "suggestions" && dirty && !confirm("目前有未儲存的變更。要開啟投稿清單嗎？")) return;
+  filter = next;
+  const showQueue = filter === "suggestions";
+  group.forEach((item) => item.setAttribute("aria-pressed", String(item.dataset.editorFilter === filter)));
+  queue.hidden = !showQueue;
+  get("editor-draft").hidden = showQueue;
+  get("editor-list").hidden = showQueue;
+  get("editor-count").hidden = showQueue;
+  get("editor-search").closest("label").hidden = showQueue;
+  if (showQueue) { dirty = false; loadSubmissions(); }
+  else renderList();
+}
+
+async function loadSubmissions() {
+  const request = ++queueRequest;
+  const activeAuthorization = authorization;
+  queueStatus.textContent = "正在讀取投稿…";
+  try {
+    const { data, error } = await client.from("kansai_suggestions")
+      .select("id,name,japanese,city,category,reason,station,booking,official_url,map_url,submitted_at")
+      .eq("status", "pending").order("submitted_at", { ascending: false }).limit(50);
+    if (request !== queueRequest || activeAuthorization !== authorization) return;
+    if (error) throw error;
+    queueStatus.textContent = data.length ? "顯示 " + data.length + " 筆待審核投稿" : "目前沒有待審核投稿。";
+    queueList.replaceChildren(...data.map((item) => {
+      const card = node("article", "");
+      card.className = "catalog-card";
+      card.append(node("h3", item.name), node("p", [item.city, item.category, item.japanese].filter(Boolean).join(" ・ ")),
+        node("p", item.reason));
+      if (item.station || item.booking) card.append(node("p", [item.station, item.booking].filter(Boolean).join(" ・ ")));
+      const links = node("div", "");
+      links.className = "editor-actions";
+      if (validUrl(item.official_url)) links.append(sourceLink("官方連結", item.official_url));
+      if (validUrl(item.map_url)) links.append(sourceLink("地圖連結", item.map_url));
+      for (const [decision, label] of [["accept", "轉成草稿"], ["reject", "不採用"]]) {
+        const control = node("button", label);
+        control.type = "button";
+        control.className = "button small";
+        control.addEventListener("click", () => reviewSubmission(item, decision, card));
+        links.append(control);
+      }
+      card.append(links);
+      return card;
+    }));
+  } catch {
+    if (request === queueRequest && activeAuthorization === authorization) queueStatus.textContent = "目前無法讀取投稿，請重新整理。";
+  }
+}
+
+async function reviewSubmission(item, decision, card) {
+  if (decision === "reject" && !confirm("確認不採用這則投稿？")) return;
+  const controls = [...card.querySelectorAll("button")];
+  controls.forEach((control) => { control.disabled = true; });
+  const activeAuthorization = authorization;
+  try {
+    const { data, error } = await client.rpc("kansai_review_suggestion", { receipt: item.id, decision });
+    if (error) throw error;
+    if (activeAuthorization !== authorization) return;
+    const result = Array.isArray(data) ? data[0] : data;
+    if (decision === "accept" && result?.draft_id) {
+      const resultDraft = await client.from("kansai_place_drafts")
+        .select("id,content,status,version,updated_at").eq("id", result.draft_id).single();
+      if (resultDraft.error) throw resultDraft.error;
+      if (activeAuthorization !== authorization) return;
+      rows = [...rows.filter((row) => row.id !== resultDraft.data.id), resultDraft.data];
+      switchFilter("all");
+      selectPlace(resultDraft.data, true);
+      status.textContent = "已轉成草稿，請核對內容和來源後發布。";
+      form.elements.namedItem("name").focus();
+    } else if (result?.status !== "pending") {
+      await loadSubmissions();
+    }
+  } catch {
+    if (activeAuthorization === authorization) queueStatus.textContent = "處理未完成，請重新整理後確認。";
+  } finally {
+    controls.forEach((control) => { control.disabled = false; });
+  }
+}
+
+group.forEach((control) => control.addEventListener("click", () => switchFilter(control.dataset.editorFilter)));
+get("submission-reload").addEventListener("click", loadSubmissions);
 
 async function authorize(session) {
   const ticket = ++authorization;
@@ -210,6 +311,7 @@ async function authorize(session) {
     rows = result.data;
     layout.hidden = false;
     status.textContent = "已登入景點管理。";
+    switchFilter("all");
     selectPlace(rows[0], true);
   } catch {
     if (ticket === authorization) status.textContent = "暫時無法確認管理權限，請重新整理。";
