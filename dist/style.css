@@ -213,3 +213,97 @@ img { display: block; max-width: 100%; }
   .stop { grid-template-columns: 1fr auto; }
   .stop .stop-time { grid-column: 1 / -1; }
 }
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.planner-controls, .variant-picker, .planner-actions, .segmented { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.planner-controls { justify-content: space-between; margin-bottom: 12px; }
+.planner-actions button, .segmented button, .itinerary .stop-enhanced .button, .day-stamp button { color: var(--ivory); }
+.button.small { min-height: 44px; font-size: .875rem; padding: 4px 11px; background: transparent; cursor: pointer; }
+.segmented { gap: 5px; }
+.segmented button { min-height: 44px; padding: 5px 13px; border: 1px solid #907785; border-radius: 7px; background: #372b41; cursor: pointer; font-size: .92rem; }
+.segmented button[aria-pressed="true"] { background: #f8d5b0; border-color: #f8d5b0; color: #4a2732; font-weight: 780; }
+.variant-picker { margin-bottom: 14px; gap: 10px 21px; }
+.variant-picker label { display: flex; align-items: center; gap: 8px; }
+.variant-picker select { background: #342940; color: var(--ivory); border-color: #947988; }
+.route-duration { color: #e5ccbf; font-size: .875rem; }
+.stop-enhanced { grid-template-columns: 66px minmax(0, 1fr) auto; align-items: start; }
+.stop-enhanced .stop-time { white-space: nowrap; }
+.stop-enhanced[aria-current="step"] { background: #493248; border-inline-start: 3px solid #f8d5b0; padding-inline: 9px; border-radius: 5px; }
+.place-main, .place-actions { min-width: 0; }
+.place-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: end; }
+.stop-enhanced .place-actions { max-width: 200px; }
+.place-actions button[aria-pressed="true"] { background: #f8d5b0; border-color: #f8d5b0; color: #482839; }
+.itinerary .stop-enhanced .complete-stop { background: #f8d5b0; border-color: #f8d5b0; color: #482839; }
+.place-details { min-width: 0; }
+.stop-enhanced .place-details { grid-column: 2 / -1; }
+.place-details summary, .budget summary { font-weight: 780; cursor: pointer; padding-block: 7px; }
+.detail-body { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 4px 0 8px; }
+.detail-body p { flex-basis: 100%; font-size: .92rem; overflow-wrap: anywhere; }
+.stop-enhanced .detail-body a { color: #f6caa8; }
+.day-stamp { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; color: #ffe4c5; border: 1px dashed #cf9e93; border-radius: 9px; margin: 10px 0; padding: 12px; }
+.stamp-mark { display: grid; place-items: center; width: 46px; min-height: 46px; border: 1px solid currentColor; border-radius: 50%; font-size: 1.2rem; }
+.stamp-mark img { width: 100%; }
+.no-script-tip { padding: 16px 0; }
+
+.discover-section, .saved-section { padding: clamp(40px, 7vw, 86px) 0; border-bottom: 1px solid var(--line); }
+.discover-section { background: #f3e5cd; }
+.discover-controls { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 10px; }
+.discover-controls label, .budget-controls label, .transit-finder label { display: grid; gap: 5px; font-weight: 750; min-width: 0; }
+:is(.discover-controls, .budget-controls, .transit-finder, .saved-results, .variant-picker) :is(input, select) {
+  min-height: 45px; width: 100%; min-width: 0; border: 1px solid #9c7b74; background: var(--ivory); color: var(--ink); border-radius: 6px; padding: 5px 9px; font: inherit; font-size: 1rem;
+}
+.variant-picker select { width: auto; background: #342940; color: var(--ivory); border-color: #947988; }
+.result-count { margin: 9px 0; color: var(--muted); font-size: .94rem; }
+.place-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; align-items: start; }
+.catalog-card { display: grid; gap: 7px; min-width: 0; background: var(--ivory); border: 1px solid var(--line); border-top: 3px solid var(--wine); border-radius: 8px; padding: 13px; }
+.catalog-card h3, .saved-row h3 { font-size: 1.05rem; }
+.place-meta { color: var(--muted); font-size: .94rem; }
+.catalog-card .place-actions { justify-content: start; }
+.more-places { margin-top: 14px; background: var(--ivory); cursor: pointer; }
+.saved-results { display: grid; gap: 7px; }
+.saved-row { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(125px, .5fr) auto auto; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); padding: 9px 0; }
+.saved-day { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.empty-saved { padding: 15px; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); }
+.budget { margin-top: 24px; padding: 12px 15px; background: var(--ivory); border: 1px solid var(--line); border-radius: 8px; }
+.budget-controls { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; margin: 8px 0; }
+#budget-total { display: block; font-weight: 800; }
+.transit-finder { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); align-items: start; gap: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--ivory); padding: 14px; margin-bottom: 15px; }
+#rail-result p { color: var(--muted); margin-bottom: 6px; }
+#japanese-card { width: min(500px, calc(100% - 28px)); border: 1px solid var(--line); border-radius: 12px; background: var(--ivory); color: var(--ink); padding: 22px; }
+#japanese-card form { display: flex; justify-content: end; margin-bottom: 8px; }
+#japanese-card h2 { font-size: clamp(1.35rem, 5vw, 2.6rem); line-height: 1.3; }
+#japanese-card p { margin: 12px 0; }
+#japanese-card p[lang="ja"] { font-size: 1.2rem; font-weight: 800; }
+#japanese-card::backdrop { background: #201527b3; }
+#planner-notice:not(:empty) { position: fixed; z-index: 19; bottom: 16px; right: 16px; box-shadow: 0 4px 20px #231c3238; background: var(--ink); color: var(--ivory); border: 1px solid #b59ca9; border-radius: 8px; padding: 9px 12px; max-width: calc(100% - 32px); pointer-events: none; }
+@media (max-width: 900px) {
+  .place-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .itinerary .stop-enhanced { grid-template-columns: auto minmax(0, 1fr); }
+  .stop-enhanced .stop-time { grid-column: auto; }
+  .stop-enhanced .place-actions { grid-column: 2; justify-content: start; max-width: none; }
+  .stop-enhanced[aria-current="step"] + .stop-enhanced { border-top: 0; }
+  .discover-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .discover-controls label:first-child, .saved-row h3 { grid-column: 1 / -1; }
+  .place-grid, .transit-finder { grid-template-columns: minmax(0, 1fr); }
+  .saved-row { grid-template-columns: minmax(100px, 1fr) auto auto; }
+  .budget-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mobile-nav { grid-template-columns: repeat(5, 1fr); font-size: .92rem; }
+  #planner-notice:not(:empty) { bottom: calc(62px + env(safe-area-inset-bottom)); }
+}
+
+#assigned-places { grid-column: 1 / -1; border: 1px dashed #8c7485; padding: 10px 14px; border-radius: 7px; }
+#assigned-places h3 { font-size: 1rem; }
+#assigned-places ul { display: flex; flex-wrap: wrap; gap: 5px 18px; list-style: none; padding: 0; margin: 4px 0 0; }
+#assigned-places a { color: #f6caa8; }
+#stamp-gallery { display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0; }
+.gallery-stamp { border: 1px dashed #b89b8d; border-radius: 999px; padding: 3px 10px; }
+.gallery-stamp[data-earned="true"] { border-style: solid; background: #f8d5b0; color: #482839; font-weight: 800; }
+#download-postcard:disabled { opacity: .65; cursor: default; }
+.cloud-sync { margin: 0 0 14px; }
+.cloud-sync p { color: var(--muted); margin-bottom: 8px; }
+#cloud-form, #cloud-actions { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+#cloud-form label { display: grid; gap: 4px; width: min(100%, 280px); }
+#cloud-form input { min-height: 44px; width: 100%; padding-inline: 8px; border: 1px solid #9c7b74; border-radius: 6px; background: var(--ivory); color: var(--ink); font: inherit; }
+.catalog-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px; }
