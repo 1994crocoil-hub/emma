@@ -23,8 +23,12 @@ function isHttps(value) {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (submit.disabled) return;
-  const { website, ...payload } = Object.fromEntries([...new FormData(form)].map(([key, value]) => [key, value.trim()]));
+  const { website, publish_consent, ...payload } = Object.fromEntries([...new FormData(form)].map(([key, value]) => [key, value.trim()]));
   if (website) { showSuccess(); return; }
+  if (publish_consent !== "on") {
+    status.textContent = "請勾選同意公開，才能送出推薦。";
+    return;
+  }
   if (payload.name.length < 2 || payload.reason.length < 5) {
     status.textContent = "請填景點名稱和至少五個字的推薦理由。";
     return;
@@ -37,6 +41,7 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
+  payload.consent_to_publish = true;
   const signature = JSON.stringify(payload);
   if (payloadSignature !== signature) {
     receipt = crypto.randomUUID();
@@ -59,6 +64,7 @@ form.addEventListener("submit", async (event) => {
     }
     if (!response.ok) throw new Error();
     showSuccess();
+    window.dispatchEvent(new Event("kansai:suggestion-sent"));
   } catch {
     status.textContent = "暫時送不出去。填寫內容已保留，請稍後再試。";
   } finally {
