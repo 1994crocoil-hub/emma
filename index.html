@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff8eb">
+  <meta name="theme-color" content="#f9f1df">
   <meta name="description" content="京都・大阪四日自由行手帳。從京都鳥居到大阪霓虹，查景點、每日行程、地圖和關西交通。">
   <title>京都・大阪旅行手帳</title>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="trip.js"></script>
+  <link rel="stylesheet" href="style.css?v=3">
+  <script defer src="trip.js?v=3"></script>
 </head>
 <body>
+  <div class="reading-progress" aria-hidden="true"></div>
   <a class="skip" href="#main">跳到主要內容</a>
   <header class="site-header">
     <div class="wrap header-inner">
@@ -26,27 +27,24 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="wrap hero-inner">
         <div class="hero-copy">
-          <p class="hero-label"><span aria-hidden="true">✦</span> KYOTO &amp; OSAKA</p>
-          <h1 id="hero-title">京都・大阪<br><span>旅行手帳</span></h1>
-          <p class="hero-description">京都看鳥居，大阪吃宵夜。<br>跟著旅伴，把兩座城市慢慢逛完。</p>
+          <p class="hero-label">KYOTO &amp; OSAKA <span aria-hidden="true">✦</span></p>
+          <h1 id="hero-title"><span>京都・大阪</span><span>旅行手帳</span></h1>
+          <p class="hero-description">從京都的朱紅鳥居，到大阪的河畔霓虹。和三位旅伴一起，慢慢逛完這趟關西之旅。</p>
           <div class="hero-actions">
             <a class="button primary" href="#itinerary">看四日行程</a>
-            <a class="text-link" href="#cities">探索兩座城市</a>
+            <a class="text-link" href="#cities">探索城市</a>
           </div>
         </div>
-        <div class="hero-art">
-          <div class="hero-orbit" aria-hidden="true"></div>
-          <div class="hero-halo" aria-hidden="true"></div>
+        <div class="hero-art" data-parallax>
+          <img class="hero-landscape" src="assets/kansai-dusk.webp" srcset="assets/kansai-dusk-small.webp 780w, assets/kansai-dusk.webp 1440w" sizes="(max-width: 680px) 92vw, (max-width: 1290px) 55vw, 740px" alt="" width="1440" height="960" fetchpriority="high">
+          <div class="hero-shine" aria-hidden="true"></div>
           <div class="postmark" aria-hidden="true"><span>JAPAN</span><b>✽</b><span>KANSAI</span></div>
-          <span class="spark spark-one" aria-hidden="true">✦</span>
-          <span class="spark spark-two" aria-hidden="true">✧</span>
-          <span class="spark spark-three" aria-hidden="true">✦</span>
+          <div class="hero-stars" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>
           <div class="characters">
             <img class="hachiware" src="assets/hachiware.png" width="400" height="400" alt="小八貓">
-            <img class="chiikawa" src="assets/chiikawa.png" width="400" height="400" alt="吉伊卡哇" fetchpriority="high">
+            <img class="chiikawa" src="assets/chiikawa.png" width="400" height="400" alt="吉伊卡哇">
             <img class="usagi" src="assets/usagi.png" width="400" height="400" alt="兔兔">
           </div>
-          <span class="art-caption" aria-hidden="true">✦　關西出發　✦</span>
         </div>
       </div>
     </section>
@@ -54,19 +52,19 @@
     <section id="cities" class="section cities-section" aria-labelledby="cities-title">
       <div class="wrap">
         <div class="section-heading city-heading" data-reveal>
-          <h2 id="cities-title">在關西，<br class="mobile-only">遇見兩種風景。</h2>
+          <h2 id="cities-title">兩座城市，兩種風景</h2>
           <p>在京都沿著石板路散步，在大阪順著河岸找晚餐。</p>
         </div>
         <div class="cities">
           <article class="city kyoto" data-reveal>
-            <figure><img src="assets/kyoto.webp" alt="伏見稻荷大社的朱紅鳥居" width="773" height="980" loading="lazy"></figure>
+            <figure data-reveal-photo><img src="assets/kyoto.webp" alt="伏見稻荷大社的朱紅鳥居" width="773" height="980" loading="lazy"></figure>
             <div class="city-info">
               <div><h3>京都 <span>KYOTO</span></h3><p>千本鳥居、東山老街與嵐山竹林。</p></div>
               <a class="button city-button" href="#itinerary" data-city-day="1">逛京都</a>
             </div>
           </article>
           <article class="city osaka" data-reveal>
-            <figure><img src="assets/osaka.webp" alt="大阪道頓堀夜晚的霓虹招牌" width="500" height="500" loading="lazy"></figure>
+            <figure data-reveal-photo><img src="assets/osaka.webp" alt="大阪道頓堀夜晚的霓虹招牌" width="500" height="500" loading="lazy"></figure>
             <div class="city-info">
               <div><h3>大阪 <span>OSAKA</span></h3><p>大阪城、新世界與道頓堀的霓虹。</p></div>
               <a class="button city-button" href="#itinerary" data-city-day="3">玩大阪</a>
@@ -90,6 +88,14 @@
             <button type="button" data-day="4" aria-pressed="false"><span>Day 4</span><strong>新世界・梅田</strong></button>
           </div>
           <div class="schedule" id="schedule" aria-live="polite"></div>
+          <aside class="route-card">
+            <div class="route-photos" aria-hidden="true">
+              <img src="assets/kyoto.webp" alt="" loading="lazy">
+              <img src="assets/osaka.webp" alt="" loading="lazy">
+            </div>
+            <p id="route-caption">Day 1 · 京都</p>
+            <a class="button" id="day-route-card" href="https://www.google.com/maps/dir/?api=1&amp;origin=Fushimi+Inari+Taisha&amp;destination=Gion+Kyoto&amp;waypoints=Kiyomizu-dera&amp;travelmode=transit" target="_blank" rel="noopener">開啟當日路線</a>
+          </aside>
           <noscript>開啟 JavaScript 後可切換每日行程。<a href="https://kyoto.travel/en/getting-around/">京都交通</a> · <a href="https://osaka-info.jp/en/">大阪觀光</a></noscript>
         </div>
       </div>
@@ -110,6 +116,7 @@
   <footer class="site-footer">
     <div class="wrap footer-inner">
       <a class="brand" href="#main"><span class="brand-icon" aria-hidden="true">✽</span>京都・大阪旅行手帳</a>
+      <button class="motion-toggle" type="button" hidden>關閉動畫</button>
       <div aria-label="圖片與觀光資料來源">
         <a href="https://chiikawamarket.jp/collections/#character" target="_blank" rel="noopener">角色圖片 · 吉伊卡哇官方商店</a>
         <a href="https://kyoto.travel/en/destinations/fushimi-inaritaisha-shrine/" target="_blank" rel="noopener">京都觀光</a>
