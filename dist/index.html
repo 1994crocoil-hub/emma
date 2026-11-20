@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff9ef">
+  <meta name="description" content="京都・大阪四日自由行手帳。查景點、每日行程、地圖和關西交通。">
+  <title>京都・大阪旅行手帳</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="trip.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要內容</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#main"><span class="brand-icon" aria-hidden="true">✿</span> 京都・大阪旅行手帳</a>
+      <nav aria-label="主要導覽">
+        <a href="#cities">逛城市</a><a href="#itinerary">每日行程</a><a href="#transport">交通</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="kicker">KYOTO &amp; OSAKA</p>
+        <h1 id="hero-title">京都・大阪<br>旅行手帳<span>✿</span></h1>
+        <p class="hero-description">從京都的朱紅鳥居，逛到大阪的道頓堀。把景點、路線和交通收進同一本手帳。</p>
+        <a class="button primary" href="#itinerary">看四日行程</a>
+      </div>
+      <div class="hero-art">
+        <span class="cloud cloud-left" aria-hidden="true"></span><span class="cloud cloud-right" aria-hidden="true"></span>
+        <span class="spark spark-one" aria-hidden="true">✦</span><span class="spark spark-two" aria-hidden="true">✦</span><span class="spark spark-three" aria-hidden="true">✧</span>
+        <div class="characters">
+          <img class="hachiware" src="assets/hachiware.png" width="400" height="400" alt="小八貓">
+          <img class="chiikawa" src="assets/chiikawa.png" width="400" height="400" alt="吉伊卡哇" fetchpriority="high">
+          <img class="usagi" src="assets/usagi.png" width="400" height="400" alt="兔兔">
+        </div>
+      </div>
+    </section>
+
+    <section id="cities" class="section" aria-labelledby="cities-title">
+      <div class="section-heading"><h2 id="cities-title">今天想去哪裡？</h2></div>
+      <div class="cities">
+        <article class="city kyoto">
+          <img src="assets/kyoto.webp" alt="伏見稻荷大社的朱紅鳥居" width="773" height="980">
+          <div><h3>京都 <span>KYOTO</span></h3><p>千本鳥居、東山老街和嵐山竹林。</p><a class="button" href="#itinerary" data-city-day="1">逛京都</a></div>
+        </article>
+        <article class="city osaka">
+          <img src="assets/osaka.webp" alt="大阪道頓堀夜晚的霓虹招牌" width="500" height="500">
+          <div><h3>大阪 <span>OSAKA</span></h3><p>大阪城、新世界和河畔霓虹。</p><a class="button" href="#itinerary" data-city-day="3">玩大阪</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="itinerary" class="section" aria-labelledby="itinerary-title">
+      <div class="section-heading itinerary-heading">
+        <div><h2 id="itinerary-title">每日行程</h2><p>四日示範路線，停留時間可依步調調整。</p></div>
+        <a class="quiet-link" id="day-route-top" href="https://www.google.com/maps/dir/?api=1&amp;origin=Fushimi+Inari+Taisha&amp;destination=Gion+Kyoto&amp;waypoints=Kiyomizu-dera&amp;travelmode=transit" target="_blank" rel="noopener">當日路線地圖</a>
+      </div>
+      <div class="itinerary">
+        <div class="days" role="group" aria-label="選擇日期">
+          <button type="button" data-day="1" aria-pressed="true"><span>Day 1</span><strong>伏見稻荷・東山</strong></button>
+          <button type="button" data-day="2" aria-pressed="false"><span>Day 2</span><strong>嵐山・錦市場</strong></button>
+          <button type="button" data-day="3" aria-pressed="false"><span>Day 3</span><strong>大阪城・難波</strong></button>
+          <button type="button" data-day="4" aria-pressed="false"><span>Day 4</span><strong>新世界・梅田</strong></button>
+        </div>
+        <div class="schedule" id="schedule" aria-live="polite"></div>
+        <noscript>開啟 JavaScript 後可切換每日行程。<a href="https://kyoto.travel/en/getting-around/">京都交通</a> · <a href="https://osaka-info.jp/en/">大阪觀光</a></noscript>
+      </div>
+    </section>
+
+    <section id="transport" class="section" aria-labelledby="transport-title">
+      <div class="section-heading"><h2 id="transport-title">交通速查</h2></div>
+      <div class="transport-grid">
+        <article><h3>關西機場進市區</h3><p>往京都站或大阪站可查 JR 特急 HARUKA 的停靠站和最新時刻。</p><a class="quiet-link" href="https://www.westjr.co.jp/travel-information/tc/train-usage-guide/howto/guide/" target="_blank" rel="noopener">JR 西日本搭乘指南</a></article>
+        <article><h3>京都 ⇄ 大阪</h3><p>京都站和大阪站之間可查 JR 京都線。從祇園或河原町出發時，也可比較京阪與阪急的路線。</p><a class="quiet-link" href="https://kyoto.travel/en/getting-around/getting-around-kyoto-by-subway-train/" target="_blank" rel="noopener">京都鐵路交通指南</a></article>
+        <article><h3>大阪市區移動</h3><p>查景點的最近車站，再用 Osaka Metro 路線圖確認出口和轉乘。</p><a class="quiet-link" href="https://subway.osakametro.co.jp/tw/guide/routemap.php" target="_blank" rel="noopener">Osaka Metro 路線圖</a></article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <strong>✿ 京都・大阪旅行手帳</strong>
+      <div aria-label="圖片與觀光資料來源">
+        <a href="https://chiikawamarket.jp/collections/#character" target="_blank" rel="noopener">角色圖片 · 吉伊卡哇官方商店</a>
+        <a href="https://kyoto.travel/en/destinations/fushimi-inaritaisha-shrine/" target="_blank" rel="noopener">京都觀光</a>
+        <a href="https://www.osaka-info.jp/en/spot/dotonbori/" target="_blank" rel="noopener">大阪觀光</a>
+      </div>
+    </div>
+  </footer>
+  <nav class="mobile-nav" aria-label="旅途中快速導覽">
+    <a href="#itinerary">行程</a>
+    <a id="day-route-mobile" href="https://www.google.com/maps/dir/?api=1&amp;origin=Fushimi+Inari+Taisha&amp;destination=Gion+Kyoto&amp;waypoints=Kiyomizu-dera&amp;travelmode=transit" target="_blank" rel="noopener">地圖</a>
+    <a href="#transport">交通</a>
+  </nav>
+</body>
+</html>
