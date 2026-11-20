@@ -1,4 +1,4 @@
-import { projectUrl, publishableKey, emailAuthEnabled } from "./supabase-config.js?v=4";
+import { projectUrl, publishableKey, emailAuthEnabled } from "./supabase-config.js?v=5";
 
 const get = (id) => document.getElementById(id);
 const status = get("cloud-status");
@@ -50,8 +50,9 @@ async function loadCatalog() {
   endpoint.searchParams.set("order", "id");
   const response = await fetch(endpoint, { headers: { apikey: publishableKey } });
   if (!response.ok) throw new Error("Catalog unavailable");
-  const count = window.kansaiApplyCatalog(await response.json());
-  if (!count) throw new Error("No catalog entries");
+  const records = await response.json();
+  if (!Array.isArray(records)) throw new Error("Invalid catalog");
+  const count = window.kansaiApplyCatalog(records);
   get("catalog-source").textContent = "已從 Supabase 載入 " + count + " 筆景點資料";
 }
 
@@ -63,6 +64,23 @@ async function startCloud() {
   let baseline = new Map();
   let pending = new Map();
   let queue = Promise.resolve();
+  const outboxKey = (user) => "kansai-outbox:" + user.id;
+
+  function restoreOutbox(user) {
+    try {
+      const entries = JSON.parse(localStorage.getItem(outboxKey(user))) ?? [];
+      return new Map(entries.filter(([, record]) => record.user_id === user.id && groups.includes(record.collection)));
+    } catch { return new Map(); }
+  }
+
+  function keepOutbox(user) {
+    try {
+      if (pending.size) localStorage.setItem(outboxKey(user), JSON.stringify([...pending]));
+      else localStorage.removeItem(outboxKey(user));
+    } catch {
+      // The active tab can still retry in-memory edits.
+    }
+  }
 
   function enqueue(task) {
     queue = queue.then(task).catch(() => {
@@ -80,6 +98,7 @@ async function startCloud() {
         : await client.from(table).upsert(record);
       if (result.error) throw result.error;
       if (pending.get(id) === record) pending.delete(id);
+      keepOutbox(user);
     }
     status.textContent = pending.size ? "同步中…" : "已登入，資料已同步。";
   }
@@ -96,13 +115,15 @@ async function startCloud() {
         value: value === undefined ? undefined : structuredClone(value) });
     }
     baseline.set(collection, structuredClone(items));
+    keepOutbox(user);
     status.textContent = "同步中…";
     enqueue(() => flush(user));
     return true;
   }
 
   async function refresh(user) {
-    if (activeUser?.id === user.id) {
+    if (desiredUser?.id !== user.id) return;
+    if (pending.size) {
       await flush(user);
       if (pending.size) return;
     }
@@ -114,9 +135,15 @@ async function startCloud() {
     }
     if (desiredUser?.id !== user.id || pending.size) return;
     const state = inflate(data);
-    baseline = new Map(groups.map((name) => [name, flatten(name, state[name])]));
+    const nextBaseline = new Map(groups.map((name) => [name, flatten(name, state[name])]));
+    const changed = activeUser?.id !== user.id || groups.some((name) => {
+      const before = baseline.get(name);
+      const after = nextBaseline.get(name);
+      return before.size !== after.size || [...after].some(([key, value]) => JSON.stringify(before.get(key)) !== JSON.stringify(value));
+    });
+    baseline = nextBaseline;
     activeUser = user;
-    storage.useCloud(state, save);
+    if (changed) storage.useCloud(state, save);
     const device = storage.readDevice();
     importButton.hidden = !groups.some((name) => [...flatten(name, device[name]).keys()].some((key) => !baseline.get(name).has(key)));
     status.textContent = "已登入，資料已同步。";
@@ -142,6 +169,7 @@ async function startCloud() {
       pending = new Map();
       storage.useDevice();
     }
+    if (priorId !== user.id) pending = restoreOutbox(user);
     status.textContent = "正在讀取雲端資料…";
     enqueue(() => refresh(user));
   }
@@ -169,7 +197,7 @@ async function startCloud() {
   });
 
   get("cloud-signout").addEventListener("click", () => enqueue(async () => {
-    if (activeUser) await flush(activeUser);
+    if (desiredUser) await flush(desiredUser);
     if (pending.size) return;
     const { error } = await client.auth.signOut({ scope: "local" });
     if (error) throw error;
