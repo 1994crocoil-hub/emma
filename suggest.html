@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="推薦你喜歡的京都與大阪景點、餐廳或角色商店。">
   <title>推薦景點｜京都・大阪旅行手帳</title>
-  <link rel="stylesheet" href="style.css?v=6">
-  <script type="module" src="suggest.js?v=6"></script>
+  <link rel="stylesheet" href="style.css?v=7">
+  <script type="module" src="suggest.js?v=7"></script>
+  <script type="module" src="community.js?v=7"></script>
 </head>
 <body>
   <header class="site-header"><div class="wrap header-inner">
@@ -15,7 +16,7 @@
   </div></header>
   <main class="wrap suggest-page">
     <div class="suggest-header section-heading">
-      <div><h1>推薦景點</h1><p>去過一間想推薦的店？把它分享給我們，資料經審核後會收入旅行手帳。</p></div>
+      <div><h1>推薦景點</h1><p>去過一間想推薦的店？送出後，景點名稱、城市、分類和推薦理由會顯示在網站上。請避免填寫個人資料。</p></div>
       <img src="assets/usagi.png" width="400" height="400" alt="">
     </div>
     <form id="suggest-form">
@@ -32,6 +33,7 @@
           <label>官方連結<input name="official_url" type="url" maxlength="350" placeholder="https://" aria-describedby="link-help"></label>
           <label>地圖連結<input name="map_url" type="url" maxlength="350" placeholder="https://" aria-describedby="link-help"></label>
         </div>
+        <label class="editor-wide suggest-consent"><input type="checkbox" name="publish_consent" required>我同意公開景點名稱、城市、分類和推薦理由。</label>
         <div class="suggest-trap" aria-hidden="true"><label>網站<input name="website" tabindex="-1" autocomplete="off"></label></div>
       </div>
       <div class="editor-actions">
@@ -41,9 +43,15 @@
       <noscript>請開啟 JavaScript 再送出推薦。</noscript>
     </form>
     <section id="suggest-success" class="catalog-card" tabindex="-1" hidden>
-      <h2>已收到，等待審核。</h2>
+      <h2>已收到你的推薦。</h2>
       <p>謝謝你分享關西的小發現。</p>
-      <div class="editor-actions"><button type="button" id="suggest-again" class="button small">再推薦一個</button><a class="text-link" href="./#discover">回景點目錄</a></div>
+      <div class="editor-actions"><button type="button" id="suggest-again" class="button small">再推薦一個</button><a class="text-link" href="#community">看大家的推薦</a></div>
+    </section>
+    <section id="community" class="section community-inline" aria-labelledby="community-title" data-community>
+      <div class="section-heading"><h2 id="community-title">大家的推薦景點</h2></div>
+      <p class="result-count" data-community-status role="status">正在載入推薦…</p>
+      <div class="place-grid" data-community-list></div>
+      <button type="button" class="button small more-places" data-community-more hidden>顯示更多推薦</button>
     </section>
   </main>
 </body>

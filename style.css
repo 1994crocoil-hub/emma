@@ -375,3 +375,11 @@ img { display: block; max-width: 100%; }
   .suggest-fields, .suggestion-links { grid-template-columns: minmax(0, 1fr); }
   .suggest-header img { align-self: start; }
 }
+
+.community-section { padding: clamp(36px, 7vw, 82px) 0; border-bottom: 1px solid var(--line); background: #f3e5cd; }
+.community-inline { margin-top: 32px; }
+.community-card { overflow-wrap: anywhere; }
+.community-reason { white-space: pre-wrap; }
+
+.suggest-fields .suggest-consent { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.suggest-fields .suggest-consent input { width: 18px; min-height: 18px; height: 18px; margin: 0; padding: 0; accent-color: var(--wine); }

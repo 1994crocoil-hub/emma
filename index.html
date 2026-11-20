@@ -6,11 +6,12 @@
   <meta name="theme-color" content="#f9f1df">
   <meta name="description" content="京都・大阪四日自由行手帳。查京都與大阪景點、吉伊卡哇商店、每日路線和交通，收藏地點並下載離線行程。">
   <title>京都・大阪旅行手帳</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
   <script defer src="places.js?v=5"></script>
   <script defer src="trip.js?v=4"></script>
   <script defer src="planner.js?v=5"></script>
   <script type="module" src="cloud.js?v=5"></script>
+  <script type="module" src="community.js?v=7"></script>
   <script defer src="shops.js?v=5"></script>
 </head>
 <body>
@@ -23,7 +24,7 @@
         <a href="#discover">找景點</a>
         <a href="#itinerary">每日行程</a>
         <a href="#shops">角色巡禮</a>
-        <a href="suggest.html">推薦景點</a>
+        <a href="#community">大家推薦</a>
         <a href="#saved">我的清單</a>
       </nav>
     </div>
@@ -161,6 +162,18 @@
           <div id="selected-shop"></div>
         </div>
         <div class="place-grid" id="shop-list"></div>
+      </div>
+    </section>
+
+    <section id="community" class="section community-section" aria-labelledby="community-title" data-community>
+      <div class="wrap">
+        <div class="section-heading city-heading">
+          <div><h2 id="community-title">大家的推薦景點</h2><p>旅客分享的京都和大阪去處。</p></div>
+          <a class="button primary" href="suggest.html">推薦一個景點</a>
+        </div>
+        <p class="result-count" data-community-status role="status">正在載入推薦…</p>
+        <div class="place-grid" data-community-list></div>
+        <button type="button" class="button small more-places" data-community-more hidden>顯示更多推薦</button>
       </div>
     </section>
 
