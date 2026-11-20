@@ -16,7 +16,7 @@ const places = {
   umeda: ["梅田藍天大廈", "梅田スカイビル", "Umeda Sky Building Osaka", "JR 大阪站", "使用空中庭園官網的交通頁，依出站位置選擇步行路線。", "展望台需門票。", "景點", "https://www.skybldg.co.jp/"],
   mogumogu: ["吉伊卡哇本舗京都伏見店", "ちいかわもぐもぐ本舗 京都伏見店", "Chiikawa Mogumogu Honpo Kyoto Fushimi", "JR 稻荷站", "沿伏見稻荷大社參道前往，官網列 JR 稻荷站步行約 5 分鐘。", "入店整理券或預約依官方當期公告。", "角色商店", "https://www.chiikawamogumogu.jp/stores/fushimi/"],
   chikyoto: ["吉伊卡哇樂園 京都四條河原町店", "ちいかわらんど 京都四条河原町店", "Chiikawa Land Kyoto Shijo Kawaramachi", "阪急京都河原町站", "搭阪急到京都河原町後，往 KIDDY LAND 京都四條河原町店。", "出發前查店面樓層、營業及入場公告。", "角色商店", chiikawaGuide],
-  chishinsaibashi: ["吉伊卡哇樂園 心齋橋 PARCO 店", "ちいかわらんど 心斎橋パルコ店", "Chiikawa Land Shinsaibashi Parco", "Osaka Metro 心齋橋站", "至心齋橋 PARCO 內的 KIDDY LAND。", "新商品發售時的入場與購買方式見官方公告。", "角色商店", chiikawaGuide],
+  chishinsaibashi: ["吉伊卡哇樂園 心齋橋 PARCO 店", "ちいかわらんど 心斎橋パルコ店", "Chiikawa Land Shinsaibashi Parco", "Osaka Metro 心齋橋站", "由心齋橋站前往 PARCO 6 樓。", "新商品發售時的入場與購買方式見官方公告。", "角色商店", chiikawaGuide],
   chiumeda: ["吉伊卡哇樂園 大阪梅田店", "ちいかわらんど 大阪梅田店", "Chiikawa Land Osaka Umeda", "阪急大阪梅田站", "由大阪梅田站前往阪急三番街。", "出發前確認館休與當日入場公告。", "角色商店", chiikawaGuide],
   railway: ["京都鐵道博物館", "京都鉄道博物館", "Kyoto Railway Museum", "JR 梅小路京都西站", "由梅小路京都西站往梅小路公園側。", "室內展館，參觀前查休館日與票券。", "室內", "https://www.kyotorailwaymuseum.jp/en/access/"],
   manga: ["京都國際漫畫博物館", "京都国際マンガミュージアム", "Kyoto International Manga Museum", "京都市營地下鐵烏丸御池站", "出站後往烏丸通，依博物館交通頁步行。", "參觀前查休館日、票券和當期展覽。", "室內", "https://kyotomm.jp/en/"],
@@ -39,13 +39,16 @@ const addresses = {
   chishinsaibashi: "大阪府大阪市中央区心斎橋筋1丁目8-3 心斎橋PARCO"
 };
 
-const catalogDays = new Map();
+const catalogMetadata = new Map();
 
 function placeInfo(id) {
   const [name, japanese, map, station, access, visit, category, source] = places[id];
   const routeDay = planDays.findIndex(item => item.shop === id || item.indoor === id || item.stops.some(([stop]) => stop === id)) + 1;
-  const day = routeDay || catalogDays.get(id);
-  return { id, name, japanese, map, station, access, visit, category, source, address: addresses[id], day, city: planDays[day - 1].city };
+  const meta = catalogMetadata.get(id) ?? {};
+  const day = meta.day || routeDay;
+  return { id, name, japanese, map, station, access, visit, category, source, address: addresses[id], day,
+    city: meta.city || planDays[day - 1].city, checkedAt: meta.checked_at, aliases: meta.aliases,
+    notice: meta.notice, lat: meta.lat, lng: meta.lng };
 }
 
 const railRoutes = {

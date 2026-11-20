@@ -8,6 +8,7 @@ const savePanel = query("#saved-results");
 const notice = query("#planner-notice");
 const japaneseDialog = query("#japanese-card");
 const timing = ["早上", "下午", "晚上"];
+let publishedIds = new Set(Object.keys(places));
 
 function read(key, fallback) {
   try { return JSON.parse(localStorage.getItem("kansai-" + key)) ?? fallback; }
@@ -136,7 +137,7 @@ function detailsFor(place) {
   const japanese = element("p", "", place.japanese);
   japanese.lang = "ja";
   body.append(japanese, element("p", "", place.access), element("p", "", place.visit));
-  if (place.category === "角色商店") body.append(element("p", "", "官方店鋪名錄查核：2026-11-20"));
+  if (place.checkedAt) body.append(element("p", "", "最後查核：" + place.checkedAt));
   body.append(
     external("官方資訊", place.source), button("日文出示卡", () => showJapanese(place)));
   details.append(summary, body);
@@ -155,9 +156,11 @@ function placeCard(place, kind, supplementary = "") {
 }
 
 function currentStops() {
-  const stops = planDays[day - 1].stops.map(([id, duration], index) => ({ ...placeInfo(id), duration, time: timing[index] }));
-  if (variant === "rain") stops[0] = { ...placeInfo(planDays[day - 1].indoor), duration: 2, time: timing[0] };
-  return variant === "short" ? [stops[0], stops[2]] : stops;
+  const plan = planDays[day - 1];
+  const stops = plan.stops.map(([id, duration], index) => ({ id, duration, time: timing[index] }));
+  if (variant === "rain" && publishedIds.has(plan.indoor)) stops[0] = { id: plan.indoor, duration: 2, time: timing[0] };
+  const selection = variant === "short" ? [stops[0], stops[2]] : stops;
+  return selection.filter(({ id }) => publishedIds.has(id)).map((stop) => ({ ...placeInfo(stop.id), ...stop }));
 }
 
 function shareUrl() {
@@ -190,7 +193,7 @@ function renderDay(animate = false) {
   dayButtons.forEach((node) => node.setAttribute("aria-pressed", String(+node.dataset.day === day)));
   modeButtons.forEach((node) => node.setAttribute("aria-pressed", String(node.dataset.mode === mode)));
   query("#route-variant").value = variant;
-  query("#route-duration").textContent = "建議停留合計約 " + stops.reduce((total, stop) => total + stop.duration, 0) + " 小時（交通時間另計）";
+  query("#route-duration").textContent = stops.length ? "建議停留合計約 " + stops.reduce((total, stop) => total + stop.duration, 0) + " 小時（交通時間另計）" : "這一天暫無已發布的景點。";
 
   const orderedStops = travelling && upcoming ? [upcoming, ...stops.filter((stop) => stop.id !== upcoming.id)] : stops;
   const rows = orderedStops.map((stop) => {
@@ -215,7 +218,7 @@ function renderDay(animate = false) {
   if (travelling) {
     const remaining = stops.filter((stop) => !visited.includes(stop.id)).length;
     query("#travel-status").textContent = upcoming ? "下一站：" + upcoming.name + "，尚有 " + remaining + " 站" : "今日行程已完成";
-    if (!remaining) {
+    if (!remaining && stops.length) {
       if (!stamps[day]) {
         stamps[day] = true;
         write("stamps", stamps);
@@ -242,13 +245,14 @@ function renderDay(animate = false) {
     }
   } else query("#travel-status").textContent = "";
 
-  const route = mapsUrl("dir", {
+  const route = stops.length < 2 ? (stops[0] && mapPlace(stops[0])) : mapsUrl("dir", {
     origin: stops[0].map,
     destination: stops.at(-1).map,
     ...(stops.length > 2 ? { waypoints: stops.slice(1, -1).map((stop) => stop.map).join("|") } : {}),
     travelmode: "transit"
   });
-  routeLinks.forEach((link) => { link.href = route; });
+  routeLinks.forEach((link) => { link.hidden = !route; if (route) link.href = route; });
+  query("#download-day").disabled = !stops.length;
   if (travelling && upcoming) query("#day-route-mobile").href = mapPlace(upcoming);
 
   renderAssigned();
@@ -340,7 +344,7 @@ function renderPlaces() {
   const results = fullCatalog.filter((place) =>
     (!cityFilter.value || place.city === cityFilter.value) &&
     (!categoryFilter.value || place.category === categoryFilter.value) &&
-    words.every((word) => normalized([place.name, place.japanese, place.map, place.station, place.category].join(" ")).includes(word))
+    words.every((word) => normalized([place.name, place.japanese, place.map, place.station, place.category, place.aliases].join(" ")).includes(word))
   );
   query("#place-count").textContent = results.length ? results.length + " 個地點" : "沒有符合的地點，試試其他關鍵字或分類。";
   resultList.replaceChildren(...results.slice(0, resultLimit).map((place) =>
@@ -367,7 +371,7 @@ more.addEventListener("click", () => {
 });
 
 function assignedToDay() {
-  return Object.keys(favorites).filter((id) => Number(favorites[id]) === day && places[id]);
+  return Object.keys(favorites).filter((id) => Number(favorites[id]) === day && publishedIds.has(id));
 }
 
 function renderAssigned() {
@@ -386,7 +390,7 @@ function renderAssigned() {
 function refreshSaved() {
   renderAssigned();
   document.querySelectorAll("[data-save-place]").forEach(updateSaveButton);
-  const entries = Object.entries(favorites).filter(([id, assigned]) => places[id] && validDay(assigned));
+  const entries = Object.entries(favorites).filter(([id, assigned]) => publishedIds.has(id) && validDay(assigned));
   if (!entries.length) {
     savePanel.replaceChildren(element("p", "empty-saved", "清單還是空的。從景點或行程卡點「收藏」，就能加進來。"));
     return;
@@ -497,32 +501,44 @@ function renderRail() {
 }
 rail.addEventListener("change", renderRail);
 
+window.kansaiShopCatalog = () => fullCatalog.filter((place) => place.category === "角色商店");
+window.kansaiRenderShopCard = (place) => placeCard(place, "catalog-card", " · " + place.city);
 window.kansaiApplyCatalog = (records) => {
-  let loaded = 0;
+  const nextPublished = new Set();
   let changed = false;
   for (const { id, content } of records) {
     if (!/^[a-z]+$/.test(id) || !Array.isArray(content?.fields) || content.fields.length !== 8 ||
-        !content.fields.every((value) => typeof value === "string" && value.trim()) ||
-        !/^https:\/\//.test(content.fields[7])) continue;
+        !content.fields.every((value) => typeof value === "string") ||
+        !content.fields[0].trim() || !/^https:\/\//.test(content.fields[7])) continue;
     if (!Object.hasOwn(places, id) && !validDay(content.day)) continue;
-    if (JSON.stringify(places[id]) !== JSON.stringify(content.fields) || addresses[id] !== content.address) {
+    const meta = {
+      day: validDay(content.day) ? Number(content.day) : undefined,
+      city: ["京都", "大阪"].includes(content.city) ? content.city : undefined,
+      checked_at: /^\d{4}-\d{2}-\d{2}$/.test(content.checked_at ?? "") ? content.checked_at : undefined,
+      aliases: typeof content.aliases === "string" ? content.aliases : undefined,
+      notice: /^https:\/\//.test(content.notice ?? "") ? content.notice : undefined,
+      lat: typeof content.lat === "number" && Math.abs(content.lat) <= 90 ? content.lat : undefined,
+      lng: typeof content.lng === "number" && Math.abs(content.lng) <= 180 ? content.lng : undefined
+    };
+    if (JSON.stringify(places[id]) !== JSON.stringify(content.fields) ||
+        addresses[id] !== content.address || JSON.stringify(catalogMetadata.get(id)) !== JSON.stringify(meta)) {
       places[id] = content.fields;
       addresses[id] = typeof content.address === "string" ? content.address : undefined;
+      catalogMetadata.set(id, meta);
       changed = true;
     }
-    if (validDay(content.day)) {
-      changed ||= catalogDays.get(id) !== Number(content.day);
-      catalogDays.set(id, Number(content.day));
-    }
-    loaded += 1;
+    nextPublished.add(id);
   }
+  changed ||= nextPublished.size !== publishedIds.size || [...nextPublished].some((id) => !publishedIds.has(id));
+  publishedIds = nextPublished;
   if (changed) {
-    fullCatalog = Object.keys(places).map(placeInfo);
+    fullCatalog = Object.keys(places).filter((id) => publishedIds.has(id)).map(placeInfo);
     renderDay();
     renderPlaces();
     refreshSaved();
+    window.dispatchEvent(new Event("kansai:catalog"));
   }
-  return loaded;
+  return publishedIds.size;
 };
 
 renderStamps();

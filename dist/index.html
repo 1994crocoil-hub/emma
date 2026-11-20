@@ -6,11 +6,12 @@
   <meta name="theme-color" content="#f9f1df">
   <meta name="description" content="京都・大阪四日自由行手帳。查京都與大阪景點、吉伊卡哇商店、每日路線和交通，收藏地點並下載離線行程。">
   <title>京都・大阪旅行手帳</title>
-  <link rel="stylesheet" href="style.css?v=4">
-  <script defer src="places.js?v=4"></script>
+  <link rel="stylesheet" href="style.css?v=5">
+  <script defer src="places.js?v=5"></script>
   <script defer src="trip.js?v=4"></script>
-  <script defer src="planner.js?v=4"></script>
-  <script type="module" src="cloud.js?v=4"></script>
+  <script defer src="planner.js?v=5"></script>
+  <script type="module" src="cloud.js?v=5"></script>
+  <script defer src="shops.js?v=5"></script>
 </head>
 <body>
   <div class="reading-progress" aria-hidden="true"></div>
@@ -21,6 +22,7 @@
       <nav aria-label="主要導覽">
         <a href="#discover">找景點</a>
         <a href="#itinerary">每日行程</a>
+        <a href="#shops">角色巡禮</a>
         <a href="#saved">我的清單</a>
       </nav>
     </div>
@@ -135,6 +137,32 @@
       </div>
     </section>
 
+    <section class="section shops-section" id="shops" aria-labelledby="shops-title">
+      <div class="wrap">
+        <div class="section-heading city-heading">
+          <div><h2 id="shops-title">吉伊卡哇巡禮地圖</h2><p>收藏想逛的門市，出門前查看各店的入場公告。</p></div>
+          <img src="assets/chiikawa.png" width="400" height="400" alt="" loading="lazy">
+        </div>
+        <div class="shops-controls">
+          <div role="group" aria-label="門市城市">
+            <button type="button" class="button small" data-shop-city="" aria-pressed="true">全部</button>
+            <button type="button" class="button small" data-shop-city="京都" aria-pressed="false">京都</button>
+            <button type="button" class="button small" data-shop-city="大阪" aria-pressed="false">大阪</button>
+          </div>
+          <div role="group" aria-label="顯示方式">
+            <button type="button" class="button small" data-shop-view="list" aria-pressed="true">列表</button>
+            <button type="button" class="button small" data-shop-view="map" aria-pressed="false">地圖</button>
+          </div>
+        </div>
+        <div id="shops-map-panel" hidden>
+          <div id="shops-map" aria-label="京都及大阪角色門市地圖"></div>
+          <p class="result-count" id="shop-map-status" role="status"></p>
+          <div id="selected-shop"></div>
+        </div>
+        <div class="place-grid" id="shop-list"></div>
+      </div>
+    </section>
+
     <section id="saved" class="section saved-section" aria-labelledby="saved-title">
       <div class="wrap">
         <div class="section-heading city-heading" data-reveal>
@@ -199,6 +227,7 @@
   <footer class="site-footer">
     <div class="wrap footer-inner">
       <a class="brand" href="#main"><span class="brand-icon" aria-hidden="true">✽</span>京都・大阪旅行手帳</a>
+      <a href="admin.html">景點管理</a>
       <button class="motion-toggle" type="button" hidden>關閉動畫</button>
       <div aria-label="圖片與觀光資料來源">
         <a href="https://chiikawamarket.jp/collections/#character" target="_blank" rel="noopener">角色圖片 · 吉伊卡哇官方商店</a>
