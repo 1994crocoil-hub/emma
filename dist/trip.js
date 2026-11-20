@@ -24,6 +24,8 @@ const itinerary = {
 const schedule = document.querySelector("#schedule");
 const dayButtons = document.querySelectorAll("[data-day]");
 const routeLinks = document.querySelectorAll("#day-route-top, #day-route-mobile");
+const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+let scheduleAnimation;
 
 function mapsUrl(path, query) {
   return "https://www.google.com/maps/" + path + "/?" + new URLSearchParams({ api: "1", ...query });
@@ -45,7 +47,7 @@ function renderStop(stop) {
   details.append(title, info);
 
   const map = document.createElement("a");
-  map.className = "quiet-link stop-map";
+  map.className = "text-link stop-map";
   map.href = mapsUrl("search", { query: stop.map });
   map.target = "_blank";
   map.rel = "noopener";
@@ -55,7 +57,7 @@ function renderStop(stop) {
   return row;
 }
 
-function showDay(day) {
+function showDay(day, animate = false) {
   const stops = itinerary[day];
   dayButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.day === day)));
   schedule.replaceChildren(...stops.map(renderStop));
@@ -66,13 +68,39 @@ function showDay(day) {
     travelmode: "transit"
   });
   routeLinks.forEach((link) => { link.href = route; });
+  if (animate) animateSchedule();
 }
 
 dayButtons.forEach((button) => {
-  button.addEventListener("click", () => showDay(button.dataset.day));
+  button.addEventListener("click", () => showDay(button.dataset.day, true));
 });
 
 document.querySelectorAll("[data-city-day]").forEach((link) => {
-  link.addEventListener("click", () => showDay(link.dataset.cityDay));
+  link.addEventListener("click", () => showDay(link.dataset.cityDay, true));
 });
 showDay("1");
+
+function animateSchedule() {
+  if (motionPreference.matches || !schedule.animate) return;
+  scheduleAnimation?.cancel();
+  scheduleAnimation = schedule.animate(
+    [{ opacity: .5, transform: "translateY(5px)" }, { opacity: 1, transform: "none" }],
+    { duration: 230, easing: "ease-out" }
+  );
+}
+
+if ("IntersectionObserver" in window) {
+  const scrollReveal = new IntersectionObserver((entries, observer) => {
+    entries.forEach(({ target, isIntersecting }) => {
+      if (!isIntersecting) return;
+      observer.unobserve(target);
+      if (motionPreference.matches || !target.animate) return;
+      target.animate(
+        [{ opacity: .72, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }],
+        { duration: 450, easing: "ease-out" }
+      );
+    });
+  }, { rootMargin: "0px 0px -12px" });
+
+  document.querySelectorAll("[data-reveal]").forEach((element) => scrollReveal.observe(element));
+}
